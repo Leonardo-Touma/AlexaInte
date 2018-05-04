@@ -25,12 +25,11 @@ namespace LambdaAlexa
         /// <returns></returns>
         private static HttpClient _httpClient;
         public const string INVOCATION_NAME = "Country Info";
-
+       
         public Function()
         {
             _httpClient = new HttpClient();
         }
-
         public async Task<SkillResponse> FunctionHandler(SkillRequest input, ILambdaContext context)
         {
             var requestType = input.GetRequestType();
