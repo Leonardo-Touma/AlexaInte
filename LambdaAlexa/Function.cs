@@ -25,7 +25,6 @@ namespace LambdaAlexa
         /// <returns></returns>
         private static HttpClient _httpClient;
         public const string INVOCATION_NAME = "Country Info";
-       
         public Function()
         {
             _httpClient = new HttpClient();
@@ -57,19 +56,19 @@ namespace LambdaAlexa
         }
 
 
-        private SkillResponse MakeSkillResponse(string outputSpeech, 
-            bool shouldEndSession, 
+        private SkillResponse MakeSkillResponse(string outputSpeech,
+            bool shouldEndSession,
             string repromptText = "Just say, tell me about Canada to learn more. To exit, say, exit.")
         {
             var response = new ResponseBody
             {
                 ShouldEndSession = shouldEndSession,
-                OutputSpeech = new PlainTextOutputSpeech {Text = outputSpeech}
+                OutputSpeech = new PlainTextOutputSpeech { Text = outputSpeech }
             };
 
             if (repromptText != null)
             {
-                response.Reprompt = new Reprompt() {OutputSpeech = new PlainTextOutputSpeech() {Text = repromptText}};
+                response.Reprompt = new Reprompt() { OutputSpeech = new PlainTextOutputSpeech() { Text = repromptText } };
             }
 
             var skillResponse = new SkillResponse
@@ -107,16 +106,16 @@ namespace LambdaAlexa
 
             // try to find a match on the name "korea" could return both north korea and south korea
             var bestMatch = (from c in countries
-                where c.name.ToLowerInvariant() == countryName ||
-                c.demonym.ToLowerInvariant() == $"{countryName}n"   // north korea hack (name is not North Korea, by demonym is North Korean)
-                orderby c.population descending 
-                select c).FirstOrDefault();
+                             where c.name.ToLowerInvariant() == countryName ||
+                             c.demonym.ToLowerInvariant() == $"{countryName}n"   // north korea hack (name is not North Korea, by demonym is North Korean)
+                             orderby c.population descending
+                             select c).FirstOrDefault();
 
             var match = bestMatch ?? (from c in countries
-                where c.name.ToLowerInvariant().IndexOf(countryName) > 0 
-                || c.demonym.ToLowerInvariant().IndexOf(countryName) > 0
-                orderby c.population descending 
-                select c).FirstOrDefault();
+                                      where c.name.ToLowerInvariant().IndexOf(countryName) > 0
+                                      || c.demonym.ToLowerInvariant().IndexOf(countryName) > 0
+                                      orderby c.population descending
+                                      select c).FirstOrDefault();
 
             if (match == null && countries.Count > 0)
             {
