@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
 
-namespace TestTest
+namespace AwsBilly
 {
     public class Function
     {
@@ -61,7 +61,7 @@ namespace TestTest
                         response.Response.ShouldEndSession = true;
                         break;
                     case "billy":
-                        HelloIntent();
+                        BillyIntent();
                         break;
                     default:
                         log.LogLine("Unknown intent: " + IntentRequest.Intent.Name);
@@ -78,9 +78,9 @@ namespace TestTest
             response.Response.ShouldEndSession = true;
             return response;
         }
-        public void HelloIntent()
+        public void BillyIntent()
         {
-            log.LogLine($"Say Hello");
+            log.LogLine($"Billy called");
             innerResponse = new PlainTextOutputSpeech();
             (innerResponse as PlainTextOutputSpeech).Text = "Hello from VS.";
         }

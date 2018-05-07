@@ -24,7 +24,7 @@ namespace LambdaAlexa
         /// <param name="context"></param>
         /// <returns></returns>
         private static HttpClient _httpClient;
-        public const string INVOCATION_NAME = "Country Info";
+        public const string INVOCATION_NAME = "billy Info";
         public Function()
         {
             _httpClient = new HttpClient();
@@ -35,17 +35,19 @@ namespace LambdaAlexa
             if (requestType == typeof(IntentRequest))
             {
                 var intentRequest = input.Request as IntentRequest;
-                var countryRequested = intentRequest?.Intent?.Slots["Country"].Value;
+                var billyRequested = intentRequest?.Intent?.Slots["billy"].Value;
 
-                if (countryRequested == null)
+                if (billyRequested == null)
                 {
-                    context.Logger.LogLine($"The country was not understood.");
-                    return MakeSkillResponse("I'm sorry, but I didn't understand the country you were asking for. Please ask again.", false);
+                    context.Logger.LogLine($"The billy was not understood.");
+                    return MakeSkillResponse("I'm sorry, but I didn't understand the billy you were asking for. Please ask again.", false);
                 }
 
-                var countryInfo = await GetCountryInfo(countryRequested, context);
-                var outputText = $"About {countryInfo.name}. The capitol is {countryInfo.capital} and the population is {countryInfo.population}.";
-                return MakeSkillResponse(outputText, true);
+                var billyinfo = await GetBillyInfo(billyRequested, context);
+                var outputText = $"About {billyinfo.name}. The name is {billyinfo.name} and the type is {billyinfo.type}.";
+                return MakeSkillResponse(
+                    outputText
+                    , true);
             }
             else
             {
@@ -80,94 +82,101 @@ namespace LambdaAlexa
         }
 
 
-        private async Task<Country> GetCountryInfo(string countryName, ILambdaContext context)
+        private async Task<Billy> GetBillyInfo(string Name, ILambdaContext context)
         {
-            countryName = countryName.ToLowerInvariant();
-            var countries = new List<Country>();
+            Name = Name.ToLowerInvariant();
+            var billys = new List<Billy>();
 
             // search by "North Korea" or "Vatican City" gives us poor results
             // instead search by both "North" and "Korea" to get better results
-            var countryPartNames = countryName.Split(' ');
-            if (countryPartNames.Length > 1)
+            var Billynames = Name.Split(' ');
+            if (Billynames.Length > 1)
             {
-                foreach (var searchPart in countryPartNames)
+                foreach (var searchPart in Billynames)
                 {
                     // The United States of America results in too many search requests.
                     if (searchPart != "the" || searchPart != "of")
                     {
-                        countries.AddRange(await GetResultsForCountrySearch(searchPart, context));
+                        billys.AddRange(await billySearch(searchPart, context));
                     }
                 }
             }
             else
             {
-                countries.AddRange(await GetResultsForCountrySearch(countryName, context));
+                billys.AddRange(await billySearch(Name, context));
             }
 
             // try to find a match on the name "korea" could return both north korea and south korea
-            var bestMatch = (from c in countries
-                             where c.name.ToLowerInvariant() == countryName ||
-                             c.demonym.ToLowerInvariant() == $"{countryName}n"   // north korea hack (name is not North Korea, by demonym is North Korean)
-                             orderby c.population descending
+            var bestMatch = (from c in billys
+                             where c.name.ToLowerInvariant() == Name ||
+                             c.demonym.ToLowerInvariant() == $"{Name}n"   // north korea hack (name is not North Korea, by demonym is North Korean)
+                             //orderby c.population descending
                              select c).FirstOrDefault();
 
-            var match = bestMatch ?? (from c in countries
-                                      where c.name.ToLowerInvariant().IndexOf(countryName) > 0
-                                      || c.demonym.ToLowerInvariant().IndexOf(countryName) > 0
-                                      orderby c.population descending
+            var match = bestMatch ?? (from c in billys
+                                      where c.name.ToLowerInvariant().IndexOf(Name) > 0
+                                      || c.demonym.ToLowerInvariant().IndexOf(Name) > 0
+                                      //orderby c.population descending
                                       select c).FirstOrDefault();
 
-            if (match == null && countries.Count > 0)
+            if (match == null && billys.Count > 0)
             {
-                match = countries.FirstOrDefault();
+                match = billys.FirstOrDefault();
             }
 
             return match;
         }
 
-        private async Task<List<Country>> GetResultsForCountrySearch(string countryName, ILambdaContext context)
+        private async Task<List<Billy>> billySearch(string billy, ILambdaContext context)
         {
-            List<Country> countries = new List<Country>();
-            var uri = new Uri($"https://restcountries.eu/rest/v2/name/{countryName}");
+            List<Billy> billys = new List<Billy>();
+            var uri = new Uri($"https://restcountries.eu/rest/v2/name/{billy}");
             context.Logger.LogLine($"Attempting to fetch data from {uri.AbsoluteUri}");
             try
             {
                 var response = await _httpClient.GetStringAsync(uri);
                 context.Logger.LogLine($"Response from URL:\n{response}");
                 // TODO: (PMO) Handle bad requests
-                countries = JsonConvert.DeserializeObject<List<Country>>(response);
+                billys = JsonConvert.DeserializeObject<List<Billy>>(response);
             }
             catch (Exception ex)
             {
                 context.Logger.LogLine($"\nException: {ex.Message}");
                 context.Logger.LogLine($"\nStack Trace: {ex.StackTrace}");
             }
-            return countries;
+            return billys;
         }
     }
 
-    public class Country
+    public class Billy
     {
         public string name { get; set; }
-        public string[] topLevelDomain { get; set; }
-        public string alpha2Code { get; set; }
-        public string alpha3Code { get; set; }
-        public string[] callingCodes { get; set; }
-        public string capital { get; set; }
-        public string[] altSpellings { get; set; }
-        public string region { get; set; }
-        public int population { get; set; }
-        public float[] latlng { get; set; }
+        public string type { get; set; }
+        //
+        //
+        //------------------------------------------------
+        //
+        //
+        //public string name { get; set; }
+        //public string[] topLevelDomain { get; set; }
+        //public string alpha2Code { get; set; }
+        //public string alpha3Code { get; set; }
+        //public string[] callingCodes { get; set; }
+        //public string capital { get; set; }
+        //public string[] altSpellings { get; set; }
+        //public string region { get; set; }
+        //public int population { get; set; }
+        //public float[] latlng { get; set; }
         public string demonym { get; set; }
-        public float area { get; set; }
-        public float? gini { get; set; }
-        public string[] timezones { get; set; }
-        public string[] borders { get; set; }
-        public string nativeName { get; set; }
-        public string numericCode { get; set; }
-        public Currency[] currencies { get; set; }
-        public Language[] languages { get; set; }
-        public Translations translations { get; set; }
+        //public float area { get; set; }
+        //public float? gini { get; set; }
+        //public string[] timezones { get; set; }
+        //public string[] borders { get; set; }
+        //public string nativeName { get; set; }
+        //public string numericCode { get; set; }
+        //public Currency[] currencies { get; set; }
+        //public Language[] languages { get; set; }
+        //public Translations translations { get; set; }
     }
 
     public class Translations
