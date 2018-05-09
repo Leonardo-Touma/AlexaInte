@@ -97,13 +97,16 @@ namespace LambdaAlexa
                     // The United States of America results in too many search requests.
                     if (searchPart != "the" || searchPart != "of")
                     {
-                        billys.AddRange(await billySearch(searchPart, context));
+
+                        return new Billy{ name = "billy", type = "Bokhylla" };
+                        //billys.AddRange(await billySearch(searchPart, context));
                     }
                 }
             }
             else
             {
-                billys.AddRange(await billySearch(Name, context));
+                return null;
+                //billys.AddRange(await billySearch(Name, context));
             }
 
             // try to find a match on the name "korea" could return both north korea and south korea
@@ -127,25 +130,25 @@ namespace LambdaAlexa
             return match;
         }
 
-        private async Task<List<Billy>> billySearch(string billy, ILambdaContext context)
-        {
-            List<Billy> billys = new List<Billy>();
-            var uri = new Uri($"https://restcountries.eu/rest/v2/name/{billy}");
-            context.Logger.LogLine($"Attempting to fetch data from {uri.AbsoluteUri}");
-            try
-            {
-                var response = await _httpClient.GetStringAsync(uri);
-                context.Logger.LogLine($"Response from URL:\n{response}");
-                // TODO: (PMO) Handle bad requests
-                billys = JsonConvert.DeserializeObject<List<Billy>>(response);
-            }
-            catch (Exception ex)
-            {
-                context.Logger.LogLine($"\nException: {ex.Message}");
-                context.Logger.LogLine($"\nStack Trace: {ex.StackTrace}");
-            }
-            return billys;
-        }
+        //private async Task<List<Billy>> billySearch(string billy, ILambdaContext context)
+        //{
+        //    List<Billy> billys = new List<Billy>();
+        //    var uri = new Uri($"https://restcountries.eu/rest/v2/name/{billy}");
+        //    context.Logger.LogLine($"Attempting to fetch data from {uri.AbsoluteUri}");
+        //    try
+        //    {
+        //        var response = await _httpClient.GetStringAsync(uri);
+        //        context.Logger.LogLine($"Response from URL:\n{response}");
+        //        // TODO: (PMO) Handle bad requests
+        //        billys = JsonConvert.DeserializeObject<List<Billy>>(response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        context.Logger.LogLine($"\nException: {ex.Message}");
+        //        context.Logger.LogLine($"\nStack Trace: {ex.StackTrace}");
+        //    }
+        //    return billys;
+        //}
     }
 
     public class Billy
