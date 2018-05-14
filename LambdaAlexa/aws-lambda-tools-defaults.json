@@ -14,8 +14,8 @@
     "function-memory-size" : 128,
     "function-timeout"     : 20,
     "function-handler"     : "LambdaAlexa::LambdaAlexa.Function::FunctionHandler",
-    "function-name"        : "Testcountry",
-    "function-role"        : "arn:aws:iam::816415288855:role/lambda_exec_Testcountry",
+    "function-name"        : "TestBilly",
+    "function-role"        : "arn:aws:iam::816415288855:role/lambda_exec_TestBilly",
     "tracing-mode"         : "PassThrough",
     "environment-variables" : ""
 }
